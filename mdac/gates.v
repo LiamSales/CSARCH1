@@ -14,4 +14,7 @@ module xor_gate(input a, input b, output y);
     assign y = a ^ b;
 endmodule
 
+
+//this whole file defines how logic gates should work
+
 // Implement AND, OR, NOT, XOR. No always blocks. Only assign

@@ -11,6 +11,27 @@ mdac/
 Build pure logic first (no clock)
 
 -- mdac top has template, study this
+        describes the top level view of the whole thing from the outside
+
+-- do gates.v, use assign concept, non sequential
+-- VERILOG DOESNT RUN ITS NOT AN EXE, ITS A BLUEPRINT OF MODULES
+-- A SIMULATOR RUNS IT AND PRETENDS THE GATES AND WIRES EXIST
+
+
+instantiating a module
+always declare wires
+    wire w1;
+
+and_gate my_and (
+    .a(i), // connect the a pin of the AND gate (in the template) to the wire named i
+    .b(j),
+    .c(k)
+);
+
+Left side = pin name on the module
+Right side = wire name in the parent module
+
+
 
 
 Add memory (flip-flops)
