@@ -7,3 +7,12 @@ mdac/
 ├── fsm.v
 ├── mdac_top.v
 └── tb_mdac.v
+
+Build pure logic first (no clock)
+
+-- mdac top has template, study this
+
+
+Add memory (flip-flops)
+
+Add the FSM
