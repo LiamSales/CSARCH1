@@ -1,3 +1,23 @@
+You are building a digital lock,
+ the kind you’d see on a door keypad
+ but as if you were designing the hardware inside the chip,
+  not writing an app.
+
+
+Listens to physical button signals (wires going high/low)
+Remembers what state it’s in (locked, entering code, unlocked, etc.)
+Decides what to do only on clock edges
+Has no software, no variables, no arrays, no memory lookups
+
+Is made of:
+logic gates
+flip-flops
+wires
+
+a finite state machine
+
+
+
 mdac/
 ├── gates.v
 ├── decoder.v

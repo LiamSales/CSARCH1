@@ -1,0 +1,1 @@
+//Combinational logic that checks: “Does the entered pattern match the expected unlock sequence?”
