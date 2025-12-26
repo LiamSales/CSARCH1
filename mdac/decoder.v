@@ -17,6 +17,15 @@ module decoder (
     output wire       sig3          // control signal for button 3
 );
 
+// wire = all buttons + invalid low == high
+// btnx ^ wire
+
+//btn[X] is HIGH
+
+//all other btn[Y] are LOW
+
+//invalid is LOW”
+
     // --------------------------------------------------
     // Internal wires
     // --------------------------------------------------
