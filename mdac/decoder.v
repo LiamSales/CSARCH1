@@ -1,55 +1,19 @@
-// --------------------------------------------------
-// decoder.v
-//
-// Purpose:
-// Decodes one-hot button inputs into internal
-// control signals for the MDAC system.
-//
-// This module is PURELY COMBINATIONAL.
-// --------------------------------------------------
-
 module decoder (
-    input  wire [3:0] btn,        // one-hot button inputs
-    input  wire       invalid,     // from invalid_input module
-    output wire       sig0,         // control signal for button 0
-    output wire       sig1,         // control signal for button 1
-    output wire       sig2,         // control signal for button 2
-    output wire       sig3          // control signal for button 3
+    input  wire [3:0] btn,
+    input  wire       invalid,
+    output wire       sig0,
+    output wire       sig1,
+    output wire       sig2,
+    output wire       sig3
 );
 
-// wire = all buttons + invalid low == high
-// btnx ^ wire
+    wire valid;
 
-//btn[X] is HIGH
+    not_gate n1 (invalid, valid);
 
-//all other btn[Y] are LOW
-
-//invalid is LOW”
-
-    // --------------------------------------------------
-    // Internal wires
-    // --------------------------------------------------
-    // TODO:
-    // - Declare wires needed for NOTs of btn bits
-    // - Declare wires needed for gating with invalid
-    // - Declare any intermediate results
-
-    // --------------------------------------------------
-    // Gate instantiations
-    // --------------------------------------------------
-    // TODO:
-    // 1. Invert invalid (you will need NOT invalid)
-    //
-    // 2. For each button:
-    //    - Ensure exactly that button is active
-    //    - Ensure invalid is LOW
-    //
-    // 3. Drive sig0–sig3 accordingly
-    //
-    // RULES:
-    // - Use gates from gates.v only
-    // - No assign statements for logic
-    // - No behavioral logic
-    // - Explicit structure only
+    and_gate g7  (btn[0], valid, sig0);
+    and_gate g8  (btn[1], valid, sig1);
+    and_gate g9  (btn[2], valid, sig2);
+    and_gate g10 (btn[3], valid, sig3);
 
 endmodule
