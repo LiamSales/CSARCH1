@@ -1,49 +1,30 @@
-// --------------------------------------------------
-// comparator.v
-//
-// Purpose:
-// Compares the entered input pattern against a
-// fixed, hard-coded access pattern.
-//
-// Outputs HIGH when patterns match exactly.
-//
-// PURELY COMBINATIONAL.
-// --------------------------------------------------
-
 module comparator (
-    input  wire [N-1:0] entered,   // entered pattern (from FSM/registers)
-    output wire         match       // HIGH when pattern matches
+    input  wire [N-1:0] entered,
+    output wire         match
 );
 
-    // --------------------------------------------------
-    // Parameters (optional, but recommended)
-    // --------------------------------------------------
-    // TODO:
-    // - Decide how many bits the access pattern has
-    // - Define N accordingly (e.g., 2, 3, or 4 bits)
 
-    // --------------------------------------------------
-    // Internal wires
-    // --------------------------------------------------
-    // TODO:
-    // - Wires for XOR results (bit-by-bit comparison)
-    // - Wires for inverted XORs (bit matches)
-    // - Wires for intermediate AND results
+    // 4 bit pattern 1110
 
-    // --------------------------------------------------
-    // Gate instantiations
-    // --------------------------------------------------
-    // TODO:
+wire x1, x2, x3, x4, xn1, xn2, xn3, xn4, xnA, xnB;
+   
     // 1. Hard-code the expected pattern using constants
-    // 2. XOR each entered bit with its expected value
-    // 3. Invert XOR outputs (match = XNOR behavior)
-    // 4. AND all match bits together
-    // 5. Drive 'match' from the final AND output
-    //
-    // RULES:
-    // - Use xor_gate, not_gate, and and_gate only
-    // - No behavioral logic
-    // - No == operator
-    // - No assign-based comparisons
+
+//how do i hardcode the constant in, also study specs why 4 buttons
+
+xor_gate xg1 (,,x1);
+xor_gate xg2 (,,x2);
+xor_gate xg3 (,,x3);
+xor_gate xg4 (,,x4);
+
+not_gate nA(x1, xn1);
+not_gate nB(x2, xn2);
+not_gate nC(x3, xn3);
+not_gate nD(x4, xn4);
+
+and_gate gA (xn1,xn2,xnA);
+and_gate gB (xn3,xn4,xnB);
+
+and_gate comp (xnA,xnB, match);
 
 endmodule
