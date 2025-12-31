@@ -1,4 +1,4 @@
-module decoder (
+module decoder ( // one hot encoding
     input  wire [3:0] btn,
     input  wire       invalid,
     output wire       sig0,
