@@ -1,30 +1,24 @@
 module comparator (
-    input  wire [N-1:0] entered,
-    output wire         match
+    input  wire [3:0] entered,
+    output wire       match
 );
 
+    wire x0, x1, x2, x3;
+    wire nx0, nx1, nx2, nx3;
+    wire a1, a2;
 
-    // 4 bit pattern 1110
+    xor_gate g0 (entered[0], 1'b0, x0);
+    xor_gate g1 (entered[1], 1'b1, x1);
+    xor_gate g2 (entered[2], 1'b1, x2);
+    xor_gate g3 (entered[3], 1'b1, x3);
 
-wire x1, x2, x3, x4, xn1, xn2, xn3, xn4, xnA, xnB;
-   
-    // 1. Hard-code the expected pattern using constants
+    not_gate n0 (x0, nx0);
+    not_gate n1 (x1, nx1);
+    not_gate n2 (x2, nx2);
+    not_gate n3 (x3, nx3);
 
-//how do i hardcode the constant in, also study specs why 4 buttons
-
-xor_gate xg1 (,,x1);
-xor_gate xg2 (,,x2);
-xor_gate xg3 (,,x3);
-xor_gate xg4 (,,x4);
-
-not_gate nA(x1, xn1);
-not_gate nB(x2, xn2);
-not_gate nC(x3, xn3);
-not_gate nD(x4, xn4);
-
-and_gate gA (xn1,xn2,xnA);
-and_gate gB (xn3,xn4,xnB);
-
-and_gate comp (xnA,xnB, match);
+    and_gate a_1 (nx0, nx1, a1);
+    and_gate a_2 (nx2, nx3, a2);
+    and_gate a_3 (a1,  a2,  match);
 
 endmodule
