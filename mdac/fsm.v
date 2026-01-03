@@ -1,68 +1,66 @@
-// Before we decide transitions, we must decide:
-// “How is state physically stored?”
-/*
-
-Create the state register
-3 DFFs
-updated on the clock
-reset to LOCKED
-
-Expose state as an output
-So you can see it in GTKWave.
-
-*/
 module fsm (
-    input  wire        clk,
-    input  wire        reset,
-    output wire [2:0]  state
+    input  wire        clk,   // the system clock signal, tells flip-flops "update now"
+    input  wire        reset, // synchronous reset: sets the FSM to the initial state (LOCKED)
+    output wire [2:0]  state  // the 3-bit output representing the current FSM state (for debug / GTKWave)
 );
 
-    // State encoding
+    // ------------------------------
+    // STATE ENCODINGS (constants)
+    // ------------------------------
+    // These are just *labels* for patterns of bits.
+    // They do NOT store anything by themselves.
+    // Each state is a unique 3-bit pattern, so 3 flip-flops can hold it.
     localparam LOCKED   = 3'b000;
     localparam INPUT    = 3'b001;
     localparam VERIFY   = 3'b010;
     localparam ERROR    = 3'b011;
     localparam UNLOCKED = 3'b100;
 
-    //not a variable in the sense that the machine HAS it, just a label for the pattern
-    //the state register will hold that
+    // ------------------------------
+    // INTERNAL WIRES (state storage)
+    // ------------------------------
+    // This is where the FSM actually *remembers* what state it is in.
+    // current_state[2:0] holds the value of the three flip-flops.
+    wire [2:0] current_state; 
 
-    // - Create a 3-bit register to hold current state
-    // - Use three instances of dff
-    // - On reset, state must become LOCKED
+    // next_state[2:0] is a wire that will carry the value the FSM *should become* on the next clock tick.
+    wire [2:0] next_state;  
 
-    //  The FSM has 3 bits of state (state[2:0])
-    //  Each bit is stored in a D flip-flop (you already built dff.v)
-    //  On each clock edge, the flip-flops capture the next state
-    // Reset initializes all flip-flops to the LOCKED state
+    // ------------------------------
+    // INSTANTIATE 3 D FLIP-FLOPS
+    // ------------------------------
+    // Each bit of the FSM has its own DFF
+    // Flip-flops capture next_state on the rising edge of clk
+    // If reset is high, all bits become LOCKED (3'b000)
+    dff dff0(.clk(clk), .reset(reset), .d(next_state[0]), .q(current_state[0]));
+    dff dff1(.clk(clk), .reset(reset), .d(next_state[1]), .q(current_state[1]));
+    dff dff2(.clk(clk), .reset(reset), .d(next_state[2]), .q(current_state[2]));
 
+    // ------------------------------
+    // NEXT-STATE LOGIC (combinational)
+    // ------------------------------
+    // This is a *placeholder* example.
+    // It decides what the next_state bits will be based on the current_state.
+    // This block is combinational logic: it calculates output immediately from inputs (no clock).
+    // `always @*` = "recalculate whenever any input used inside changes"
+    always @* begin
+        case(current_state)        // look at the current_state pattern
+            LOCKED:    next_state = INPUT;     // if LOCKED, next is INPUT
+            INPUT:     next_state = VERIFY;    // if INPUT, next is VERIFY
+            VERIFY:    next_state = ERROR;     // if VERIFY, next is ERROR
+            ERROR:     next_state = UNLOCKED;  // if ERROR, next is UNLOCKED
+            UNLOCKED:  next_state = LOCKED;    // if UNLOCKED, next is LOCKED
+            default:   next_state = LOCKED;    // safety fallback in case current_state is invalid
+        endcase
+    end
+    // Note:
+    // - In a real FSM, we will also consider button inputs and comparator outputs here
+    // - This example ignores inputs just to show the storage structure
 
-    // - Connect internal state register to output port
-
-    // TODO: 1. Declare a 3-bit register for current state
-    wire [2:0] current_state;
-
-    // TODO: 2. Declare a 3-bit wire for next state
-    wire [2:0] next_state;
-
-    // TODO: 3. Instantiate 3 D flip-flops for each state bit
-    // dff dff0(.clk(clk), .reset(reset), .d(next_state[0]), .q(current_state[0]));
-    // dff dff1(.clk(clk), .reset(reset), .d(next_state[1]), .q(current_state[1]));
-    // dff dff2(.clk(clk), .reset(reset), .d(next_state[2]), .q(current_state[2]));
-
-    // TODO: 4. Compute next_state based on current_state and inputs
-    // always @* begin
-    //     case(current_state)
-    //         LOCKED:    next_state = ???; // fill in transition
-    //         INPUT:     next_state = ???;
-    //         VERIFY:    next_state = ???;
-    //         ERROR:     next_state = ???;
-    //         UNLOCKED:  next_state = ???;
-    //         default:   next_state = LOCKED;
-    //     endcase
-    // end
-
-    // TODO: 5. Connect current_state to output
+    // ------------------------------
+    // CONNECT STATE TO OUTPUT
+    // ------------------------------
+    // This exposes the current state to the outside world (e.g., for debugging or waveform viewing)
     assign state = current_state;
 
 endmodule
