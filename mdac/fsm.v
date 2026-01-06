@@ -17,9 +17,9 @@ module fsm (
     // They are not memory by themselves—they are like pipes for electricity/signals in digital hardware.
 
     // Moore machine
-    // we made 3 dffs(check file), and integrate these with the wire
+    // we made 3 dffs(check file), and integrate these with the wire, 3 because thats the minimum bits for 5 states
 
-    // why do we make 3? 
+
     dff dff0(.clk(clk), .reset(reset), .d(next_state[0]), .q(current_state[0]));
     dff dff1(.clk(clk), .reset(reset), .d(next_state[1]), .q(current_state[1]));
     dff dff2(.clk(clk), .reset(reset), .d(next_state[2]), .q(current_state[2]));
