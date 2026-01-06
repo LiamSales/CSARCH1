@@ -5,12 +5,19 @@ module dff (
     output reg  q
 );
 
-    always @(posedge clk) begin
+wire nd, gda,gdb,gdc,gdd;
 
-    if (reset)
-        q <= 1'b0;
-    else
-        q <= d;
+and_gate gd1(d, clk, gda);
+not_gate gd2(gda,gdb);
+
+not_gate(d,nd);
+
+and_gate(nd, clk, gdc);
+not_gate(gdc, gdd);
+
+
+
+    always @(posedge clk) begin
 
     end
 
