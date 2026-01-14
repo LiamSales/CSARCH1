@@ -15,7 +15,7 @@ module dff (
 //Master	clk = 1	Captures D
 //Slave	clk = 0	Outputs stored value
 
-wire nd, dc, ndc, d1, d2;
+wire nd, dc, ndc, d1, d2, t1, t2;
 
 not_gate notd (d,nd);
 and_gate dandc (d,clk,dc);
@@ -23,6 +23,11 @@ and_gate ndandc (nd,clk,ndc);
 not_gate l1 (dc, d1);
 not_gate l2 (ndc, d2);
 
+and_gate l3(d1, 'q, t1);
+not_gate lt3(t1, q);
+
+and_gate l4(d2, q, t2);
+not_gate lt4(t2, 'q);
 
 
 //take time to study this
