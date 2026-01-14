@@ -1,35 +1,58 @@
 module dff (
-    input  wire clk, //pendulum
-    input  wire reset,
+    input  wire clk,     // clock (your "pendulum")
+    input  wire reset,   // synchronous reset
     input  wire d,
-    output reg  q, // should be a q'
+    output wire q        // q is driven by gates, not always-block
 );
 
- // this stores exactly bit
-// this uses the master slave
+    // --------------------------------------------------
+    // Internal wires
+    // --------------------------------------------------
+    
+    wire nd;              // inverted D
+    wire dc, ndc;         // D & clk, ~D & clk (master enable)
+    wire m_q, m_nq;       // master latch outputs
+    wire sc, sndc;        // slave enable signals (clk inverted)
+    wire s_q, s_nq;       // slave latch outputs
 
-//“On the clock edge, store D. Otherwise, remember the old value.”
-//No illegal states, On every clock tick, become next_state[i], which will be implemented in fsm module
+    // --------------------------------------------------
+    // Invert D
+    // --------------------------------------------------
+    not_gate not_d (d, nd);
 
-//we make 2 sr latches
-//Master	clk = 1	Captures D
-//Slave	clk = 0	Outputs stored value
+    // --------------------------------------------------
+    // MASTER LATCH (transparent when clk = 1)
+    // --------------------------------------------------
+    and_gate m1 (d,  clk, dc);     // TODO: confirm this is master "S"
+    and_gate m2 (nd, clk, ndc);    // TODO: confirm this is master "R"
 
-wire nd, dc, ndc, d1, d2, t1, t2;
+    // TODO: build SR latch here using dc / ndc
+    // TODO: outputs should be m_q and m_nq
+    // hint: cross-coupled NOTs or NOR/NAND equivalents
 
-not_gate notd (d,nd);
-and_gate dandc (d,clk,dc);
-and_gate ndandc (nd,clk,ndc);
-not_gate l1 (dc, d1);
-not_gate l2 (ndc, d2);
+    // --------------------------------------------------
+    // SLAVE LATCH (transparent when clk = 0)
+    // --------------------------------------------------
+    // TODO: invert clk
+    // sc   = m_q   & ~clk
+    // sndc = m_nq  & ~clk
 
-and_gate l3(d1, 'q, t1);
-not_gate lt3(t1, q);
+    // TODO: build second SR latch here
+    // TODO: outputs should be s_q and s_nq
 
-and_gate l4(d2, q, t2);
-not_gate lt4(t2, 'q);
+    // --------------------------------------------------
+    // OUTPUT
+    // --------------------------------------------------
+    assign q = s_q;
 
-
-//take time to study this
-
-//learn difference between dff and srff
+    // --------------------------------------------------
+    // TODO CHECKLIST
+    // --------------------------------------------------
+    // 1. Build master SR latch using dc / ndc
+    // 2. Invert clk for slave latch enable
+    // 3. Build slave SR latch using master outputs
+    // 4. Ensure only ONE latch is transparent at a time
+    // 5. Add reset by forcing s_q = 0 safely
+    // 6. Simulate: D changes while clk high -> no immediate Q change
+    // 7. Verify: Q updates only on rising edge
+endmodule
