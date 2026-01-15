@@ -4,20 +4,13 @@ module dff (
     input  wire d,
     output wire q        // q is driven by gates, not always-block
 );
-
-    // --------------------------------------------------
-    // Internal wires
-    // --------------------------------------------------
     
-    wire nd;              // inverted D
-    wire dc, ndc;         // D & clk, ~D & clk (master enable)
+    wire nd;              
+    wire dc, ndc, m, n;        
     wire m_q, m_nq;       // master latch outputs
     wire sc, sndc;        // slave enable signals (clk inverted)
     wire s_q, s_nq;       // slave latch outputs
 
-    // --------------------------------------------------
-    // Invert D
-    // --------------------------------------------------
     not_gate not_d (d, nd);
 
     // --------------------------------------------------
@@ -29,6 +22,11 @@ module dff (
     // TODO: build SR latch here using dc / ndc
     // TODO: outputs should be m_q and m_nq
     // hint: cross-coupled NOTs or NOR/NAND equivalents
+
+    and_gate s1 (dc,m_q, m);
+    not_gate sa (m, m_q);
+    and_gate s2 (ndc, m_nq, n);
+    not_gate sb (n, m_nq);
 
     // --------------------------------------------------
     // SLAVE LATCH (transparent when clk = 0)
