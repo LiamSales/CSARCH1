@@ -23,10 +23,26 @@ module dff (
     // TODO: outputs should be m_q and m_nq
     // hint: cross-coupled NOTs or NOR/NAND equivalents
 
-    and_gate s1 (dc,m_q, m);
+    or_gate s1 (dc,m_q, m);
     not_gate sa (m, m_q);
-    and_gate s2 (ndc, m_nq, n);
+    or_gate s2 (ndc, m_nq, n);
     not_gate sb (n, m_nq);
+
+
+
+        dc ──► S ──┐
+                   │
+               ┌───▼───┐
+               │  NOR  │───► m_q
+               └───▲───┘
+                   │
+        ndc ─► R ──┘
+                   │
+               ┌───▼───┐
+               │  NOR  │───► m_nq
+               └───▲───┘
+                   │
+                  m_q
 
     // --------------------------------------------------
     // SLAVE LATCH (transparent when clk = 0)
