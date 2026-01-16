@@ -19,9 +19,13 @@ module dff (
     and_gate m1 (d,  clk, dc);     // TODO: confirm this is master "S"
     and_gate m2 (nd, clk, ndc);    // TODO: confirm this is master "R"
 
-    // TODO: build SR latch here using dc / ndc
-    // TODO: outputs should be m_q and m_nq
-    // hint: cross-coupled NOTs or NOR/NAND equivalents
+// TODO 1: First OR must be (R , m_nq) not (S , R)
+// TODO 2: Second OR must be (S , m_q)
+// TODO 3: Ensure both outputs depend on each other
+
+// TODO replace s1 with:  or_gate (ndc, m_nq, ...) – this builds Q = ~(R | Q̅)
+
+// TODO replace s2 with:  or_gate (dc, m_q, ...) – this builds Q̅ = ~(S | Q)
 
     or_gate s1 (dc,ndc, m);
     not_gate sa (m, m_q);
