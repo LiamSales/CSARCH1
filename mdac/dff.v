@@ -26,7 +26,7 @@ module dff (
 
     not_gate nc (clk, nclk);
 
-    and_gate s_c(m_q, clk, sc);
+    and_gate s_c(m_q, nclk, sc);
     and_gate s_ndc(m_nq, nclk, sndc);
 
     // HINT 3: build SR latch using (sc, sndc) → outputs (s_q, s_nq)
