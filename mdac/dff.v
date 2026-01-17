@@ -16,8 +16,8 @@ module dff (
     // --------------------------------------------------
     // MASTER LATCH (transparent when clk = 1)
     // --------------------------------------------------
-    and_gate m1 (d,  clk, dc);     // TODO: confirm this is master "S"
-    and_gate m2 (nd, clk, ndc);    // TODO: confirm this is master "R"
+    and_gate m1 (d,  clk, dc); 
+    and_gate m2 (nd, clk, ndc);
 
 // TODO 1: First OR must be (R , m_nq) not (S , R)
 // TODO 2: Second OR must be (S , m_q)
@@ -27,9 +27,9 @@ module dff (
 
 // TODO replace s2 with:  or_gate (dc, m_q, ...) – this builds Q̅ = ~(S | Q)
 
-    or_gate s1 (dc,ndc, m);
+    or_gate s1 (ndc,m_nq, m);
     not_gate sa (m, m_q);
-    or_gate s2 (ndc, m_q, n);
+    or_gate s2 (dc, m_q, n);
     not_gate sb (n, m_nq);
 
     // --------------------------------------------------
