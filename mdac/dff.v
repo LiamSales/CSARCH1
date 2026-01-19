@@ -6,7 +6,7 @@ module dff (
 );
     
     wire nd;              
-    wire dc, ndc, m, n;        
+    wire dc, ndc, m, n, o, p;        
     wire m_q, m_nq;       
     wire sc, sndc;        
     wire s_q, s_nq;
@@ -26,10 +26,16 @@ module dff (
 
     not_gate nc (clk, nclk);
 
+    // HINT 3: build SR latch using (sc, sndc) → outputs (s_q, s_nq)
+
     and_gate s_c(m_q, nclk, sc);
     and_gate s_ndc(m_nq, nclk, sndc);
 
-    // HINT 3: build SR latch using (sc, sndc) → outputs (s_q, s_nq)
+    or_gate s3(sndc, s_nq, o);
+    not_gate sc(o, s_q);
+
+    or_gate s4(sc, s_q, p);
+    not_gate sd(p, s_nq);
 
     // HINT 4: merge reset as extra reset to slave
 
