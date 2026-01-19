@@ -1,43 +1,45 @@
 module dff (
-    input  wire clk,
-    input  wire reset,
+    input  wire clk,     // clock (your "pendulum")
+    input  wire reset,   // synchronous reset
     input  wire d,
     output wire q
 );
-    
-    wire nd;              
-    wire dc, ndc, m, n, o, p;        
-    wire m_q, m_nq;       
-    wire sc, sndc;        
-    wire s_q, s_nq;
-    wire nclk;  
+
+    wire nd;                // ~D
+    wire dc, ndc;           // master latch enables
+    wire m, n;              // master internal OR outputs
+    wire m_q, m_nq;         // master latch outputs
+
+    wire nclk;              // inverted clock for slave
+    wire sc, sndc;          // slave latch enables
+    wire s, t;              // slave internal OR outputs
+    wire s_q, s_nq;         // slave latch outputs
+
 
     not_gate not_d (d, nd);
 
-    and_gate m1 (d,  clk, dc); 
-    and_gate m2 (nd, clk, ndc);
 
-    or_gate s1 (ndc, m_nq, m);
-    not_gate sa (m, m_q);
-
-    or_gate s2 (dc, m_q, n);
-    not_gate sb (n, m_nq);
+    and_gate m_set  (d,   clk, dc);   // S = D & clk
+    and_gate m_reset(nd,  clk, ndc);  // R = ~D & clk
 
 
-    not_gate nc (clk, nclk);
+    or_gate  m_or1 (ndc, m_nq, m);
+    not_gate m_not1(m, m_q);
 
-    // HINT 3: build SR latch using (sc, sndc) → outputs (s_q, s_nq)
+    or_gate  m_or2 (dc, m_q, n);
+    not_gate m_not2(n, m_nq);
 
-    and_gate s_c(m_q, nclk, sc);
-    and_gate s_ndc(m_nq, nclk, sndc);
 
-    or_gate s3(sndc, s_nq, o);
-    not_gate sc(o, s_q);
+    not_gate clk_inv(clk, nclk);      // invert clock
+    and_gate s_set  (m_q, nclk, sc);      // S_slave = master Q & ~clk
+    or_gate  s_reset_temp (m_nq, reset, sndc); // R_slave = master Qn OR reset
+    and_gate s_reset(sndc, nclk, sndc); // AND with ~clk
 
-    or_gate s4(sc, s_q, p);
-    not_gate sd(p, s_nq);
+    or_gate s_or1 (sndc, s_nq, s);
+    not_gate s_not1(s, s_q);
 
-    // HINT 4: merge reset as extra reset to slave
+    or_gate s_or2 (sc, s_q, t);
+    not_gate s_not2(t, s_nq);
 
     assign q = s_q;
 
