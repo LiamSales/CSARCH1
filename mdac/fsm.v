@@ -23,21 +23,52 @@ module fsm (
     dff dff1(.clk(clk), .reset(reset), .d(next_state[1]), .q(current_state[1]));
     dff dff2(.clk(clk), .reset(reset), .d(next_state[2]), .q(current_state[2]));
 
-    // --------------------------
-    // TODO: NEXT STATE LOGIC (COMBINATIONAL)
-    // --------------------------
-    // 1. Create a reg [2:0] ns to hold next_state temporarily
-    // 2. Use always @* block to calculate ns from current_state + inputs
-    // 3. Implement state transitions:
-    //      LOCKED  -> INPUT when enter pressed
-    //      INPUT   -> VERIFY when enter pressed, LOCKED if clear pressed
-    //      VERIFY  -> UNLOCKED if correct input, ERROR if incorrect
-    //      ERROR   -> LOCKED if clear pressed
-    //      UNLOCKED-> LOCKED if clear pressed
-    // 4. Map ns to next_state
-    // 5. Use btn inputs or comparison logic when verifying input sequence
 
+    reg [2:0] ns;
 
+    always @* begin
+
+        ns = current_state;
+
+        case (current_state)
+
+            LOCKED: begin
+                if (enter)
+                    ns = INPUT;
+            end
+
+            INPUT: begin
+                if (clear)
+                    ns = LOCKED;
+                else if (enter)
+                    ns = VERIFY;
+            end
+
+            VERIFY: begin
+                if (match)
+                    ns = UNLOCKED;
+                else
+                    ns = ERROR;
+            end
+
+            ERROR: begin
+                if (clear)
+                    ns = LOCKED;
+            end
+
+            UNLOCKED: begin
+                if (clear)
+                    ns = LOCKED;
+            end
+
+            default: begin
+                ns = LOCKED;
+            end
+
+        endcase
+    end
+
+    assign next_state = ns;
 
 
 
