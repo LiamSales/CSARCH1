@@ -70,15 +70,10 @@ module fsm (
 
     assign next_state = ns;
 
-
-
-    // --------------------------
-    // TODO: OUTPUT LOGIC (MOORE)
-    // --------------------------
-    // 1. Assign locked = 1 if current_state == LOCKED
-    // 2. Assign unlocked = 1 if current_state == UNLOCKED
-    // 3. Assign error = 1 if current_state == ERROR
-    // 4. Assign state = current_state (for debugging)
+    assign locked   = (current_state == LOCKED);
+    assign unlocked = (current_state == UNLOCKED);
+    assign error    = (current_state == ERROR);
+    assign state = current_state;
 
     // --------------------------
     // TODO: VERIFICATION LOGIC
