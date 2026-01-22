@@ -75,12 +75,8 @@ module fsm (
     assign error    = (current_state == ERROR);
     assign state = current_state;
 
-    // --------------------------
-    // TODO: VERIFICATION LOGIC
-    // --------------------------
-    // 1. Design combinational logic to compare entered sequence with password
-    // 2. Output a signal (correct/incorrect) to the FSM
-    // 3. Feed this signal into the next_state logic for VERIFY state
+    wire match;
+    assign match = (entered_code == PASSWORD);
 
     // --------------------------
     // TODO: INPUT DECODER
