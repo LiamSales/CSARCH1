@@ -78,12 +78,23 @@ module fsm (
     wire match;
     assign match = (entered_code == PASSWORD);
 
-    // --------------------------
-    // TODO: INPUT DECODER
-    // --------------------------
-    // 1. Convert one-hot btn input to internal signals
-    // 2. Detect invalid inputs (more than one button pressed)
-    // 3. Send valid input signals to FSM and verification logic
+    wire invalid_input;
+    wire enter_pressed;
+    wire clear_pressed;
+    wire digit_valid;
+
+// study why invalid input is different
+    assign invalid_input =
+       digit_invalid
+    | (enter & (|btn))
+    | (clear & (|btn))
+    | (enter & clear);
+
+    assign enter_pressed = enter & ~invalid_input;
+    assign clear_pressed = clear & ~invalid_input;
+    assign digit_valid   = (|btn) & ~invalid_input;
+
+
 
     // --------------------------
     // TODO: TESTBENCH
