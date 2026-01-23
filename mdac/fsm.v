@@ -1,14 +1,15 @@
 module fsm (
     input  wire        clk,
-    input  wire        reset, // synchronous reset: sets the FSM to the initial state (LOCKED)
-    input  wire [3:0]  btn,   // 4 buttons, one-hot
-    input  wire        enter,  // confirm input
-    input  wire        clear,  // clear input
-    output wire [2:0]  state,
+    input  wire        reset,   // synchronous reset
+    input  wire [3:0]  btn,    // 4 buttons, one-hot
+    input  wire        enter,   // confirm input
+    input  wire        clear,   // clear input
+    output wire [2:0]  state,  // current FSM state for debug
     output wire        locked,
     output wire        unlocked,
     output wire        error
 );
+
 
     localparam LOCKED   = 3'b000;
     localparam INPUT    = 3'b001;
@@ -24,23 +25,54 @@ module fsm (
     dff dff2(.clk(clk), .reset(reset), .d(next_state[2]), .q(current_state[2]));
 
 
+    wire digit_invalid;
+    invalid_input u_invalid (
+        .btn(btn),
+        .invalid(digit_invalid)
+    );
+
+    wire invalid_input;
+    assign invalid_input =
+           digit_invalid
+        | (enter & (|btn))   // enter + any digit
+        | (clear & (|btn))   // clear + any digit
+        | (enter & clear);   // enter + clear pressed
+
+    wire enter_pressed = enter & ~invalid_input;
+    wire clear_pressed = clear & ~invalid_input;
+    wire digit_valid   = (|btn) & ~invalid_input;
+
+
+    reg [3:0] entered_code;
+    localparam [3:0] PASSWORD = 4'b1010;  // example password
+
+    always @(posedge clk) begin
+        if (reset)
+            entered_code <= 4'b0000;
+        else if (clear_pressed)
+            entered_code <= 4'b0000;
+        else if (digit_valid & enter_pressed)
+            entered_code <= btn;  // store the latest button pressed
+    end
+
+    wire match;
+    assign match = (entered_code == PASSWORD);
+
     reg [2:0] ns;
-
     always @* begin
-
         ns = current_state;
 
         case (current_state)
 
             LOCKED: begin
-                if (enter)
+                if (enter_pressed)
                     ns = INPUT;
             end
 
             INPUT: begin
-                if (clear)
+                if (clear_pressed)
                     ns = LOCKED;
-                else if (enter)
+                else if (enter_pressed)
                     ns = VERIFY;
             end
 
@@ -52,18 +84,16 @@ module fsm (
             end
 
             ERROR: begin
-                if (clear)
+                if (clear_pressed)
                     ns = LOCKED;
             end
 
             UNLOCKED: begin
-                if (clear)
+                if (clear_pressed)
                     ns = LOCKED;
             end
 
-            default: begin
-                ns = LOCKED;
-            end
+            default: ns = LOCKED;
 
         endcase
     end
@@ -73,35 +103,6 @@ module fsm (
     assign locked   = (current_state == LOCKED);
     assign unlocked = (current_state == UNLOCKED);
     assign error    = (current_state == ERROR);
-    assign state = current_state;
-
-    wire match;
-    assign match = (entered_code == PASSWORD);
-
-    wire invalid_input;
-    wire enter_pressed;
-    wire clear_pressed;
-    wire digit_valid;
-
-// study why invalid input is different
-    assign invalid_input =
-       digit_invalid
-    | (enter & (|btn))
-    | (clear & (|btn))
-    | (enter & clear);
-
-    assign enter_pressed = enter & ~invalid_input;
-    assign clear_pressed = clear & ~invalid_input;
-    assign digit_valid   = (|btn) & ~invalid_input;
-
-
-
-    // --------------------------
-    // TODO: TESTBENCH
-    // --------------------------
-    // 1. Simulate FSM with clk and reset
-    // 2. Test all possible transitions (LOCKED->INPUT->VERIFY->UNLOCKED->LOCKED)
-    // 3. Test error handling and clear input
-    // 4. Display waveforms in GTKWave to verify
+    assign state    = current_state;
 
 endmodule
