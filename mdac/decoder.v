@@ -1,4 +1,6 @@
-module decoder ( // one hot encoding
+// Converts a valid button vector into one-hot control signals.
+// If the input is invalid, all outputs remain low.
+module decoder (
     input  wire [3:0] btn,
     input  wire       invalid,
     output wire       sig0,
@@ -9,11 +11,11 @@ module decoder ( // one hot encoding
 
     wire valid;
 
-    not_gate n1 (invalid, valid);
+    not_gate n0 (invalid, valid);
 
-    and_gate g7  (btn[0], valid, sig0);
-    and_gate g8  (btn[1], valid, sig1);
-    and_gate g9  (btn[2], valid, sig2);
-    and_gate g10 (btn[3], valid, sig3);
+    and_gate a0 (btn[0], valid, sig0);
+    and_gate a1 (btn[1], valid, sig1);
+    and_gate a2 (btn[2], valid, sig2);
+    and_gate a3 (btn[3], valid, sig3);
 
 endmodule
