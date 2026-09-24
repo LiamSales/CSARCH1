@@ -7,13 +7,20 @@ module dff (
     output reg  q
 );
 
+//clk flips and flops regular intervals
+//"Only do anything when clk changes from 0 → 1
     always @(posedge clk) begin
+
+
         if (reset)
             q <= 1'b0;
+            // output zero
         else
             q <= d;
+            // output d
     end
 
+// so even when d changes, sometimes q doesnt change, because clock hasnt ticked
 endmodule
 
 // learn how this works, flip flop and storage
