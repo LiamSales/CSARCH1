@@ -111,3 +111,4 @@ module fsm (
 
 endmodule
 
+//lock behavior

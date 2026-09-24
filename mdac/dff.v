@@ -16,3 +16,4 @@ module dff (
 
 endmodule
 
+// learn how this works, flip flop and storage
