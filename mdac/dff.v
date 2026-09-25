@@ -24,3 +24,7 @@ module dff (
 endmodule
 
 // learn how this works, flip flop and storage
+
+//we have 3 dffs, 5 inputs, so 3 ohe,
+// clock is to use in 4d
+// so this is just to switch states from one to the next

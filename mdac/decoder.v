@@ -19,3 +19,6 @@ module decoder (
     and_gate a3 (btn[3], valid, sig3);
 
 endmodule
+
+//decoder makes 4 separate signals (4 buttons), the decoder allows only when valid 
+//exists for the assignment but is not currently being used by the top-level design.
