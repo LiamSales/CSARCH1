@@ -26,3 +26,7 @@ module comparator (
 
 endmodule
 
+//Does the entered code equal the expected password?
+
+//uses xor
+
