@@ -1,5 +1,10 @@
 // Finite-state machine for the MDAC lock controller.
 // The FSM is a Moore machine: outputs depend only on the current state.
+
+//Decide what the lock should do
+//This is the brain of the project.
+
+
 module fsm (
     input  wire        clk,
     input  wire        reset,
