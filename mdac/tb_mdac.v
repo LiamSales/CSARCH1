@@ -1,3 +1,5 @@
+//for simulation, pretend to be a user
+
 `timescale 1ns/1ps
 
 module tb_mdac;
