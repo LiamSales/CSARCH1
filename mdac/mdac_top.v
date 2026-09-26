@@ -1,5 +1,10 @@
 // Top-level MDAC integration.
 // This file wires the input validation, state machine, and output logic together.
+
+
+//just the "app" that runs
+
+
 module mdac_top (
     input  wire        clk,
     input  wire        reset,
