@@ -1,6 +1,6 @@
-// PART 3: this combinational circuit checks the raw buttons from the user.
-// It answers only: "Are two or more buttons on at the same time?"
-// It does not store buttons. Its invalid output is passed to the FSM in fsm.v.
+// "Are two or more buttons on at the same time?"
+// [3:0]  input wires because 4 buttons and thats just the design
+
 module invalid_input (
     input  wire [3:0] btn,
     output wire       invalid
