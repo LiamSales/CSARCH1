@@ -1,6 +1,9 @@
-// PART 2: unlike the gates in gates.v, this component remembers one bit.
-// In the FSM, three copies store the three bits of current_state.
+// unlike the gates in gates.v, this component remembers one bit
 // d is the value waiting to be stored; q is the value currently remembered.
+
+
+//if reset is 1, q becomes 0, superceeding everything else, just to turn q to 0, absolute case
+//if reset is 0, then we make q turn to d... it could be 0 too, but were following d
 module dff (
     input  wire clk,
     input  wire reset,
@@ -8,14 +11,10 @@ module dff (
     output reg  q
 );
 
-    // Run this block only on the clock's rising edge (0 -> 1).
-    // A change to d by itself does not change q; q waits for that edge.
     always @(posedge clk) begin
-        // Synchronous reset: reset clears q only at a rising clock edge.
         if (reset)
             q <= 1'b0;
         else
-            // Otherwise remember the data input until the next rising edge.
             q <= d;
     end
 endmodule
