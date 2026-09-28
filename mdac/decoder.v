@@ -1,7 +1,5 @@
-// PART 4: this module gates each raw button with the valid signal.
-// It produces four separate button wires for later logic.
-// IMPORTANT: fsm.v currently does not instantiate this module, so these
-// outputs are not part of the live circuit yet. The FSM reads btn directly.
+//SEMI USELESS JUST INTEGRATES INVALID WITH THE PRE EXISTING BUTTONS
+
 module decoder (
     input  wire [3:0] btn,
     input  wire       invalid,
