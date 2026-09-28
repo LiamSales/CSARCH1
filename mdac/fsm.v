@@ -1,10 +1,7 @@
-// Finite-state machine for the MDAC lock controller.
-// The FSM is a Moore machine: outputs depend only on the current state.
-
-//Decide what the lock should do
-//This is the brain of the project.
-
-
+// PART 6: this is the controller, or "brain", of the lock.
+// It checks inputs, remembers the current mode, and decides the next mode.
+// mdac_top.v connects this module to the external pins; tb_mdac.v tests it.
+// The state outputs are Moore-style: they depend on current_state only.
 module fsm (
     input  wire        clk,
     input  wire        reset,
@@ -17,21 +14,24 @@ module fsm (
     output wire        error
 );
 
+    // Names for the five modes. Three bits can represent up to eight values.
+    // These numbers are internal labels, not button values.
     localparam LOCKED   = 3'b000;
     localparam INPUT    = 3'b001;
     localparam VERIFY   = 3'b010;
     localparam ERROR    = 3'b011;
     localparam UNLOCKED = 3'b100;
 
-    localparam [3:0] PASSWORD = 4'b0001; //currently set to button 0
-    //we need a sequence of button presses
+    // Current implementation: the password is one 4-bit button vector.
+    // This is NOT yet a multi-button sequence/password.
+    localparam [3:0] PASSWORD = 4'b0001;
 
-    //this is the fsm's memory
-
+    // current_state is the remembered mode; next_state is the mode requested
+    // by the combinational decision logic below.
     wire [2:0] current_state;
     wire [2:0] next_state;
-    reg  [2:0] ns; //temp
-    reg  [3:0] entered_code;
+    reg  [2:0] ns; // Temporary variable used while calculating next_state.
+    reg  [3:0] entered_code; // One stored button vector, not a sequence.
 
     wire digit_invalid;
     wire valid_button;
@@ -39,50 +39,64 @@ module fsm (
     wire clear_pressed;
     wire match;
 
-    // State register built from the synchronous D flip-flops in dff.v.
+    // Three dff.v instances store the three state bits.
+    // Each D input gets one next_state bit; each Q output becomes one
+    // current_state bit. Together they move the FSM forward at a clock edge.
     dff dff0 (.clk(clk), .reset(reset), .d(next_state[0]), .q(current_state[0]));
     dff dff1 (.clk(clk), .reset(reset), .d(next_state[1]), .q(current_state[1]));
     dff dff2 (.clk(clk), .reset(reset), .d(next_state[2]), .q(current_state[2]));
 
-    // Input validation: reject combinations with more than one pressed button.
+    // Ask invalid_input.v whether multiple buttons are pressed together.
     invalid_input u_invalid (
         .btn(btn),
         .invalid(digit_invalid)
     );
 
+    // |btn means "at least one bit of btn is 1". A valid_button means
+    // at least one button is down and the combination is not multi-button.
     assign valid_button = (|btn) & ~digit_invalid;
+    // In this implementation enter must be pressed at the same time as a
+    // valid button. clear is accepted when enter is not pressed.
     assign enter_pressed = enter & valid_button & ~clear;
     assign clear_pressed = clear & ~enter;
 
-    // Store a valid key entry before verification.
-    //another flip flod to store
-    //when reset is 1 when clock rise, revert back to 0
+    // This is a second piece of memory, separate from the state DFFs.
+    // It remembers the button vector that is submitted while in INPUT.
+    // Because assignments happen at posedge clk, it updates only at a clock
+    // edge. clear or reset erases the stored vector.
     always @(posedge clk) begin
         if (reset)
             entered_code <= 4'b0000;
         else if (clear_pressed)
             entered_code <= 4'b0000;
         else if (current_state == INPUT && enter_pressed)
+            // Save the raw button vector. The invalid-input check ensures it
+            // has at most one active bit, but decoder.v is not used here.
             entered_code <= btn;
     end
 
-    // Compare with the password using explicit gate-level logic.
+    // comparator.v checks the stored vector against PASSWORD using gates.
+    // Its match output is consumed by the VERIFY case below.
     comparator u_cmp (
         .entered(entered_code),
         .expected(PASSWORD),
         .match(match)
     );
 
-    // Next-state logic for the FSM.
+    // Combinational next-state decision: this block calculates a destination
+    // but does not store it. The three DFFs copy it on the next rising edge.
     always @* begin
+        // Default: stay where we are unless a case below requests a move.
         ns = current_state;
 
         case (current_state)
+            // LOCKED -> INPUT when enter_pressed is true.
             LOCKED: begin
                 if (enter_pressed)
                     ns = INPUT;
             end
 
+            // INPUT -> LOCKED on clear, or INPUT -> VERIFY on enter.
             INPUT: begin
                 if (clear_pressed)
                     ns = LOCKED;
@@ -90,6 +104,7 @@ module fsm (
                     ns = VERIFY;
             end
 
+            // VERIFY -> UNLOCKED for a match, otherwise -> ERROR.
             VERIFY: begin
                 if (match)
                     ns = UNLOCKED;
@@ -97,6 +112,7 @@ module fsm (
                     ns = ERROR;
             end
 
+            // Both terminal result modes return to LOCKED on clear.
             ERROR: begin
                 if (clear_pressed)
                     ns = LOCKED;
@@ -111,9 +127,11 @@ module fsm (
         endcase
     end
 
+    // Connect the temporary decision to the D inputs of the state DFFs.
     assign next_state = ns;
 
-    // Moore outputs derived only from the current FSM state.
+    // Moore outputs: they describe the remembered state, not the current
+    // button press. state is also exposed for debugging in simulation.
     assign locked   = (current_state == LOCKED);
     assign unlocked = (current_state == UNLOCKED);
     assign error    = (current_state == ERROR);

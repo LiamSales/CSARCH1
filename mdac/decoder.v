@@ -1,5 +1,7 @@
-// Converts a valid button vector into one-hot control signals.
-// If the input is invalid, all outputs remain low.
+// PART 4: this module gates each raw button with the valid signal.
+// It produces four separate button wires for later logic.
+// IMPORTANT: fsm.v currently does not instantiate this module, so these
+// outputs are not part of the live circuit yet. The FSM reads btn directly.
 module decoder (
     input  wire [3:0] btn,
     input  wire       invalid,
@@ -9,10 +11,12 @@ module decoder (
     output wire       sig3
 );
 
-    wire valid;
+    wire valid; // 1 means the raw button combination may pass through.
 
+    // invalid=1 becomes valid=0; invalid=0 becomes valid=1.
     not_gate n0 (invalid, valid);
 
+    // Pass each button only when the complete button combination is valid.
     and_gate a0 (btn[0], valid, sig0);
     and_gate a1 (btn[1], valid, sig1);
     and_gate a2 (btn[2], valid, sig2);
