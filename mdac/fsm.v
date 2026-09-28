@@ -23,11 +23,14 @@ module fsm (
     localparam ERROR    = 3'b011;
     localparam UNLOCKED = 3'b100;
 
-    localparam [3:0] PASSWORD = 4'b0001;
+    localparam [3:0] PASSWORD = 4'b0001; //currently set to button 0
+    //we need a sequence of button presses
+
+    //this is the fsm's memory
 
     wire [2:0] current_state;
     wire [2:0] next_state;
-    reg  [2:0] ns;
+    reg  [2:0] ns; //temp
     reg  [3:0] entered_code;
 
     wire digit_invalid;
@@ -52,6 +55,8 @@ module fsm (
     assign clear_pressed = clear & ~enter;
 
     // Store a valid key entry before verification.
+    //another flip flod to store
+    //when reset is 1 when clock rise, revert back to 0
     always @(posedge clk) begin
         if (reset)
             entered_code <= 4'b0000;
