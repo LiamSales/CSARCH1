@@ -80,6 +80,10 @@ module fsm (
                     ns = ERROR;
             end
 
+            //The comparator is always running, but VERIFY is where the FSM actually cares about its answer.
+            //this is not sequential its instantanious
+
+
             // Both terminal result modes return to LOCKED on clear.
             ERROR: begin
                 if (clear_pressed)
@@ -104,4 +108,4 @@ module fsm (
 
 endmodule
 
-//case for inputting pw, look how it is integrated within the switch case
+//password is hardcoded
