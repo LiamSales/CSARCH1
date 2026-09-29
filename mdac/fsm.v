@@ -52,76 +52,56 @@ module fsm (
     // This is a second piece of memory, separate from the state DFFs.
     // It remembers the password the user attempts
 
-    
-    always @(posedge clk) begin
-        if (reset)
-            entered_code <= 4'b0000;
-        else if (clear_pressed)
-            entered_code <= 4'b0000; //clear was pressed, also reset
-        else if (current_state == INPUT && enter_pressed)
-            entered_code <= btn; //If we're currently in the INPUT state AND Enter is pressed, save the button value into entered_code.
+    // no clock this time, constant checking, like a thread
+    always @* begin
+        // Default: stay where we are unless a case below requests a move.
+        ns = current_state;
+
+        case (current_state)
+            // LOCKED -> INPUT when enter_pressed is true.
+            LOCKED: begin
+                if (enter_pressed)
+                    ns = INPUT;
+            end
+
+            // INPUT -> LOCKED on clear, or INPUT -> VERIFY on enter.
+            INPUT: begin
+                if (clear_pressed)
+                    ns = LOCKED;
+                else if (enter_pressed)
+                    ns = VERIFY;
+            end
+
+            // VERIFY -> UNLOCKED for a match, otherwise -> ERROR.
+            VERIFY: begin
+                if (match)
+                    ns = UNLOCKED;
+                else
+                    ns = ERROR;
+            end
+
+            // Both terminal result modes return to LOCKED on clear.
+            ERROR: begin
+                if (clear_pressed)
+                    ns = LOCKED;
+            end
+
+            UNLOCKED: begin
+                if (clear_pressed)
+                    ns = LOCKED;
+            end
+
+            default: ns = LOCKED;
+        endcase
     end
 
-    comparator u_cmp (
-        .entered(entered_code),
-        .expected(PASSWORD),
-        .match(match)
-    );
+    assign next_state = ns;
 
-    // // Combinational next-state decision: this block calculates a destination
-    // // but does not store it. The three DFFs copy it on the next rising edge.
-    // always @* begin
-    //     // Default: stay where we are unless a case below requests a move.
-    //     ns = current_state;
-
-    //     case (current_state)
-    //         // LOCKED -> INPUT when enter_pressed is true.
-    //         LOCKED: begin
-    //             if (enter_pressed)
-    //                 ns = INPUT;
-    //         end
-
-    //         // INPUT -> LOCKED on clear, or INPUT -> VERIFY on enter.
-    //         INPUT: begin
-    //             if (clear_pressed)
-    //                 ns = LOCKED;
-    //             else if (enter_pressed)
-    //                 ns = VERIFY;
-    //         end
-
-    //         // VERIFY -> UNLOCKED for a match, otherwise -> ERROR.
-    //         VERIFY: begin
-    //             if (match)
-    //                 ns = UNLOCKED;
-    //             else
-    //                 ns = ERROR;
-    //         end
-
-    //         // Both terminal result modes return to LOCKED on clear.
-    //         ERROR: begin
-    //             if (clear_pressed)
-    //                 ns = LOCKED;
-    //         end
-
-    //         UNLOCKED: begin
-    //             if (clear_pressed)
-    //                 ns = LOCKED;
-    //         end
-
-    //         default: ns = LOCKED;
-    //     endcase
-    // end
-
-    // // Connect the temporary decision to the D inputs of the state DFFs.
-    // assign next_state = ns;
-
-    // // Moore outputs: they describe the remembered state, not the current
-    // // button press. state is also exposed for debugging in simulation.
-    // assign locked   = (current_state == LOCKED);
-    // assign unlocked = (current_state == UNLOCKED);
-    // assign error    = (current_state == ERROR);
-    // assign state    = current_state;
+    assign locked   = (current_state == LOCKED);
+    assign unlocked = (current_state == UNLOCKED);
+    assign error    = (current_state == ERROR);
+    assign state    = current_state;
 
 endmodule
 
-//lock behavior
+//case for inputting pw, look how it is integrated within the switch case
