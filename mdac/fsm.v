@@ -44,39 +44,29 @@ module fsm (
     );
 
 
-//checkpoint
-
-    
-    // |btn means "at least one bit of btn is 1". A valid_button means
-    // at least one button is down and the combination is not multi-button.
+//we need the extra check to make sure one button is clicked
     assign valid_button = (|btn) & ~digit_invalid;
-    // In this implementation enter must be pressed at the same time as a
-    // valid button. clear is accepted when enter is not pressed.
     assign enter_pressed = enter & valid_button & ~clear;
     assign clear_pressed = clear & ~enter;
 
-    // // This is a second piece of memory, separate from the state DFFs.
-    // // It remembers the button vector that is submitted while in INPUT.
-    // // Because assignments happen at posedge clk, it updates only at a clock
-    // // edge. clear or reset erases the stored vector.
-    // always @(posedge clk) begin
-    //     if (reset)
-    //         entered_code <= 4'b0000;
-    //     else if (clear_pressed)
-    //         entered_code <= 4'b0000;
-    //     else if (current_state == INPUT && enter_pressed)
-    //         // Save the raw button vector. The invalid-input check ensures it
-    //         // has at most one active bit, but decoder.v is not used here.
-    //         entered_code <= btn;
-    // end
+    // This is a second piece of memory, separate from the state DFFs.
+    // It remembers the password the user attempts
 
-    // // comparator.v checks the stored vector against PASSWORD using gates.
-    // // Its match output is consumed by the VERIFY case below.
-    // comparator u_cmp (
-    //     .entered(entered_code),
-    //     .expected(PASSWORD),
-    //     .match(match)
-    // );
+    
+    always @(posedge clk) begin
+        if (reset)
+            entered_code <= 4'b0000;
+        else if (clear_pressed)
+            entered_code <= 4'b0000; //clear was pressed, also reset
+        else if (current_state == INPUT && enter_pressed)
+            entered_code <= btn; //If we're currently in the INPUT state AND Enter is pressed, save the button value into entered_code.
+    end
+
+    comparator u_cmp (
+        .entered(entered_code),
+        .expected(PASSWORD),
+        .match(match)
+    );
 
     // // Combinational next-state decision: this block calculates a destination
     // // but does not store it. The three DFFs copy it on the next rising edge.
