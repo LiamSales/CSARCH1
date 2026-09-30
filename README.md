@@ -1,6 +1,8 @@
 # CSARCH1
 Introduction to Computer Organization and Hardware
 
+study comparator, fsm, and mdac
+
 Install Icarus Verilog
 Install GTKWave
 
