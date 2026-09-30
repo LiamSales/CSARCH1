@@ -1,24 +1,18 @@
-// PART 8: simulation-only testbench. This is not hardware in the lock.
-// It pretends to be a user by changing inputs and creates a clock for the DUT.
-// DUT means "device under test"; here the DUT is mdac_top and everything in it.
-`timescale 1ns/1ps
+
 
 module tb_mdac;
 
-    // Testbench-driven inputs are reg because the initial block changes them.
     reg        clk;
     reg        reset;
     reg [3:0]  btn;
     reg        enter;
     reg        clear;
 
-    // Signals observed from the design are wires because the DUT drives them.
     wire       locked;
     wire       unlocked;
     wire       error;
     wire [2:0] state;
 
-    // Instantiate the real top-level circuit and attach the testbench wires.
     mdac_top dut (
         .clk(clk),
         .reset(reset),
