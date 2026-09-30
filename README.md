@@ -1,6 +1,11 @@
 # CSARCH1
 Introduction to Computer Organization and Hardware
 
+Install Icarus Verilog
+Install GTKWave
+
+iverilog -o mdac_sim gates.v dff.v invalid_input.v comparator.v fsm.v mdac_top.v tb_mdac.v
+
 # Microcoded Digital Access Controller (MDAC)
 
 A keypad-controlled finite-state machine built using combinational logic, control decoding, and synchronous sequential behavior.
