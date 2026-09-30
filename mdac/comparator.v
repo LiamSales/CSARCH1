@@ -2,34 +2,47 @@
 // fsm.v sends the saved entered_code and PASSWORD here, then uses match
 // SELF EXPLANATORY
 module comparator (
-    input  wire [3:0] entered,
-    input  wire [3:0] expected,
+    input  wire [15:0] entered,
+    input  wire [15:0] expected,
     output wire       match
 );
 
-    // XOR is 1 for different bits. Each x wire reports a mismatch.
-    wire x0, x1, x2, x3;
-    // NOT reverses each mismatch: nx is 1 when that bit matches.
-    wire nx0, nx1, nx2, nx3;
-    // Temporary wires combine the four individual bit-match results.
-    wire t0, t1, t2;
+    wire [15:0] bit_matches;
+    wire [7:0] matches_8;
+    wire [3:0] matches_4;
+    wire [1:0] matches_2;
 
-    // Compare corresponding bit positions in the two 4-bit values.
-    xor_gate xg0 (entered[0], expected[0], x0);
-    xor_gate xg1 (entered[1], expected[1], x1);
-    xor_gate xg2 (entered[2], expected[2], x2);
-    xor_gate xg3 (entered[3], expected[3], x3);
+    genvar bit_index;
+    generate
+        for (bit_index = 0; bit_index < 16; bit_index = bit_index + 1) begin : compare_bits
+            wire mismatch;
+            xor_gate compare_gate (entered[bit_index], expected[bit_index], mismatch);
+            not_gate equal_gate (mismatch, bit_matches[bit_index]);
+        end
+    endgenerate
 
-    // Turn each mismatch result into an equality result.
-    not_gate ng0 (x0, nx0);
-    not_gate ng1 (x1, nx1);
-    not_gate ng2 (x2, nx2);
-    not_gate ng3 (x3, nx3);
+    genvar group8;
+    generate
+        for (group8 = 0; group8 < 8; group8 = group8 + 1) begin : combine_8
+            and_gate combine_gate (bit_matches[group8 * 2], bit_matches[group8 * 2 + 1], matches_8[group8]);
+        end
+    endgenerate
 
-    // All four bits must match, so AND the four equality results together.
-    and_gate a0 (nx0, nx1, t0);
-    and_gate a1 (nx2, nx3, t1);
-    and_gate a2 (t0, t1, match);
+    genvar group4;
+    generate
+        for (group4 = 0; group4 < 4; group4 = group4 + 1) begin : combine_4
+            and_gate combine_gate (matches_8[group4 * 2], matches_8[group4 * 2 + 1], matches_4[group4]);
+        end
+    endgenerate
+
+    genvar group2;
+    generate
+        for (group2 = 0; group2 < 2; group2 = group2 + 1) begin : combine_2
+            and_gate combine_gate (matches_4[group2 * 2], matches_4[group2 * 2 + 1], matches_2[group2]);
+        end
+    endgenerate
+
+    and_gate combine_final (matches_2[0], matches_2[1], match);
 
 endmodule
 
