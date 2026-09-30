@@ -1,6 +1,10 @@
 // PART 5: this combinational circuit asks whether entered equals expected.
 // fsm.v sends the saved entered_code and PASSWORD here, then uses match
 // SELF EXPLANATORY
+
+//not self explanatory, read more because stuff changed
+
+
 module comparator (
     input  wire [15:0] entered,
     input  wire [15:0] expected,
