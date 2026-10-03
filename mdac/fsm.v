@@ -16,19 +16,12 @@ module fsm (
     localparam ERROR    = 3'b011;
     localparam UNLOCKED = 3'b100;
 
-    // Password:
-    // button 0 -> button 1 -> button 2 -> button 3
-    //
-    // button 0 = 0001
-    // button 1 = 0010
-    // button 2 = 0100
-    // button 3 = 1000
     localparam [15:0] PASSWORD = 16'b0001_0010_0100_1000;
 
     wire [2:0] current_state;
     wire [2:0] next_state;
 
-    // Temporary next-state variable.
+    
     reg [2:0] ns;
 
     // Stores four button presses.
@@ -42,11 +35,6 @@ module fsm (
     wire enter_pressed;
     wire clear_pressed;
     wire match;
-
-
-    // ------------------------------------------------------------
-    // STATE MEMORY
-    // ------------------------------------------------------------
 
     dff dff0 (
         .clk(clk),
@@ -70,37 +58,18 @@ module fsm (
     );
 
 
-    // ------------------------------------------------------------
-    // BUTTON VALIDATION
-    // ------------------------------------------------------------
-
+ 
     invalid_input u_invalid (
         .btn(btn),
         .invalid(digit_invalid)
     );
 
-    // At least one button is pressed,
-    // and it is not an invalid multi-button combination.
     assign valid_button = (|btn) & ~digit_invalid;
 
-    // Enter is its own action.
+   
     assign enter_pressed = enter & ~clear;
-
-    // Clear is its own action.
     assign clear_pressed = clear & ~enter;
 
-
-    // ------------------------------------------------------------
-    // PASSWORD STORAGE
-    // ------------------------------------------------------------
-
-    // This memory stores four button presses.
-    //
-    // Every valid button press shifts the old value left by 4 bits
-    // and places the new button in the lowest 4 bits.
-    //
-    // Example:
-    //
     // press 1: 0000_0000_0000_0001
     // press 2: 0000_0000_0001_0010
     // press 3: 0000_0001_0010_0100
